@@ -1,22 +1,33 @@
 package markdown
 
+import (
+	"strings"
+)
+
+type Card struct {
+	Name        string
+	Description string
+}
+
 type Group struct {
 	Name string
-	Card []string
+	Card []*Card
 }
 
 type Column struct {
-	Name   string
+	Title  string
 	Groups []*Group
 }
 
 type Board struct {
+	Title   string
 	Columns []*Column
 }
 
 func (b *Board) ParseContent(content []string) {
 	var currentColumn *Column
 	var currentGroup *Group
+	var currentCard *Card
 
 	for _, line := range content {
 		switch {
@@ -24,30 +35,42 @@ func (b *Board) ParseContent(content []string) {
 		case len(line) == 0:
 			continue
 
-		case line[0] == '#' && line[1] == ' ':
-			name := line[2:]
-			currentColumn = &Column{Name: name}
+		case strings.HasPrefix(line, "# "):
+			b.Title = line[2:]
+
+		case strings.HasPrefix(line, "## "):
+			name := line[3:]
+			currentColumn = &Column{Title: name}
 			b.Columns = append(b.Columns, currentColumn)
 
-		case line[0] == '#' && line[1] == '#':
-			name := line[3:]
+		case strings.HasPrefix(line, "### "):
+			name := line[4:]
 			currentGroup = &Group{Name: name}
 			currentColumn.Groups = append(currentColumn.Groups, currentGroup)
 
-		case line[0] == '-':
+		case strings.HasPrefix(line, "- "):
 			name := line[2:]
-			currentGroup.Card = append(currentGroup.Card, name)
+			currentCard = &Card{Name: name}
+			currentGroup.Card = append(currentGroup.Card, currentCard)
+
+		case strings.HasPrefix(line, "    "):
+			currentCard.Description = line[4:]
+
+		case strings.HasPrefix(line, "\t"):
+			currentCard.Description = line[1:]
 		}
 	}
 }
 
 func (b *Board) PrintBoard() {
+	println(b.Title)
 	for _, column := range b.Columns {
-		println(column.Name)
+		println(column.Title)
 		for _, group := range column.Groups {
 			println("  " + group.Name)
 			for _, card := range group.Card {
-				println("    " + card)
+				println("    " + card.Name)
+				println("      " + card.Description)
 			}
 		}
 	}

@@ -24,12 +24,14 @@ func (r *Writer) Write(b *Board) {
 
 	defer f.Close()
 
+	writeString(f, "# "+b.Title+"\n\n")
 	for _, line := range b.Columns {
-		writeString(f, "# "+line.Name+"\n\n")
+		writeString(f, "## "+line.Title+"\n\n")
 		for _, group := range line.Groups {
-			writeString(f, "## "+group.Name+"\n")
+			writeString(f, "### "+group.Name+"\n\n")
 			for _, card := range group.Card {
-				writeString(f, "- "+card+"\n")
+				writeString(f, "- "+card.Name+"\n\n")
+				writeString(f, "    "+card.Description+"\n\n")
 			}
 			writeString(f, "\n")
 		}

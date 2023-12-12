@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/pdarulewski/gonban/internal/cli"
 	"github.com/pdarulewski/gonban/internal/markdown"
 )
 
@@ -11,10 +12,10 @@ func main() {
 	}
 	r.Read()
 
-	// TODO: add bubble tea
 	b := markdown.Board{}
 	b.ParseContent(r.Content)
-	b.PrintBoard()
+	board := cli.CreateBoard(&b)
+	cli.Run(&board)
 
 	w := markdown.Writer{
 		Path: gonbanPath,
